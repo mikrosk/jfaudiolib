@@ -8,9 +8,9 @@ endif
 
 CC?=gcc
 AR?=ar
-CFLAGS=-g $(OPTLEVEL) -W -Wall
+CFLAGS?=$(OPTLEVEL)
 JFAUDIOLIB_CPPFLAGS=-Iinclude -Isrc
-JFAUDIOLIB_CFLAGS=-std=c99
+JFAUDIOLIB_CFLAGS=-g -W -Wall -std=c99
 JFAUDIOLIB_LDFLAGS=
 o=o
 
