@@ -37,8 +37,13 @@ else
   SOURCES+= src/driver_coreaudio.c
   JFAUDIOLIB_LDFLAGS+= -framework Foundation
  endif
- ifneq (0,$(JFAUDIOLIB_HAVE_SDL))
+ ifeq (1,$(JFAUDIOLIB_HAVE_SDL))
+  JFAUDIOLIB_CPPFLAGS+= -DHAVE_SDL=1 $(shell $(SDLCONFIG) --cflags)
+ endif
+ ifeq (2,$(JFAUDIOLIB_HAVE_SDL))
   JFAUDIOLIB_CPPFLAGS+= -DHAVE_SDL=2 $(shell $(SDL2CONFIG) --cflags)
+ endif
+ ifneq (0,$(JFAUDIOLIB_HAVE_SDL))
   ifeq (1,$(JFAUDIOLIB_USE_SDLMIXER))
    JFAUDIOLIB_CPPFLAGS+= -DUSE_SDLMIXER
    SOURCES+= src/driver_sdlmixer.c

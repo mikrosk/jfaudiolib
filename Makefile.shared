@@ -10,6 +10,7 @@ JFAUDIOLIB_DIR:=$(dir $(lastword $(MAKEFILE_LIST)))
 JFAUDIOLIB_LDFLAGS=
 
 SDL2CONFIG?=$(shell which sdl2-config || which false)
+SDLCONFIG?=$(shell which sdl-config || which false)
 PKGCONFIG?=$(shell which pkg-config || which false)
 
 TARGETMACHINE?=$(strip $(shell $(CC) -dumpmachine))
@@ -25,7 +26,12 @@ else
   JFAUDIOLIB_HAVE_VORBIS=1
   JFAUDIOLIB_LDFLAGS+= $(shell $(PKGCONFIG) --libs vorbisfile)
  endif
- ifneq (,$(shell $(SDL2CONFIG) --version))
+ ifeq (SDL1,$(RENDERTYPE))
+  ifneq (,$(shell $(SDLCONFIG) --version))
+   JFAUDIOLIB_HAVE_SDL=1
+   JFAUDIOLIB_LDFLAGS+= $(shell $(SDLCONFIG) --libs)
+  endif
+ else ifneq (,$(shell $(SDL2CONFIG) --version))
   JFAUDIOLIB_HAVE_SDL=2
   JFAUDIOLIB_LDFLAGS+= $(shell $(SDL2CONFIG) --libs)
  endif
