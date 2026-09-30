@@ -384,7 +384,7 @@ int SDLDrv_CD_Init(void)
 {
 #if (SDL_MAJOR_VERSION == 1)
     Uint32 inited;
-    Uint32 err = 0;
+    int err = 0;
     int i;
     
     SDLDrv_CD_Shutdown();
