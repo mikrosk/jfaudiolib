@@ -59,6 +59,9 @@ else
   JFAUDIOLIB_CPPFLAGS+= -DHAVE_FLUIDSYNTH $(shell $(PKGCONFIG) --cflags fluidsynth)
   SOURCES+= src/driver_fluidsynth.c
  endif
+ ifeq (-mint,$(findstring -mint,$(TARGETMACHINE)))
+  SOURCES+= src/driver_mintmidi.c
+ endif
  ifeq (1,$(JFAUDIOLIB_HAVE_VORBIS))
   JFAUDIOLIB_CPPFLAGS+= -DHAVE_VORBIS $(shell $(PKGCONFIG) --cflags vorbisfile)
  endif
