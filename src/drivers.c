@@ -53,6 +53,10 @@
 # include "driver_alsa.h"
 #endif
 
+#ifdef __MINT__
+# include "driver_mintmidi.h"
+#endif
+
 int ASS_PCMSoundDriver = -1;
 int ASS_CDSoundDriver = -1;
 int ASS_MIDISoundDriver = -1;
@@ -274,6 +278,28 @@ static struct {
         SDLDrv_CD_IsPlaying,
         SDLDrv_CD_SetVolume,
         UNSUPPORTED_MIDI,
+    #else
+        UNSUPPORTED_COMPLETELY,
+    #endif
+    },
+
+    // Atari MIDI port
+    {
+        "Atari MIDI",
+    #ifdef __MINT__
+        MintMIDIDrv_GetError,
+        MintMIDIDrv_ErrorString,
+
+        UNSUPPORTED_PCM,
+        UNSUPPORTED_CD,
+
+        MintMIDIDrv_MIDI_Init,
+        MintMIDIDrv_MIDI_Shutdown,
+        MintMIDIDrv_MIDI_StartPlayback,
+        MintMIDIDrv_MIDI_HaltPlayback,
+        MintMIDIDrv_MIDI_SetTempo,
+        MintMIDIDrv_MIDI_Lock,
+        MintMIDIDrv_MIDI_Unlock,
     #else
         UNSUPPORTED_COMPLETELY,
     #endif
