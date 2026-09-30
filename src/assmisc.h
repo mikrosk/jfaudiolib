@@ -21,7 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef __ASSMISC_H
 #define __ASSMISC_H
 
-#ifdef __POWERPC__
+#if defined(__POWERPC__) || (defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+#define BIGENDIAN
 #define LITTLE16(s) SWAP16(s)
 #define LITTLE32(s) SWAP32(s)
 static inline unsigned short SWAP16(unsigned short s)

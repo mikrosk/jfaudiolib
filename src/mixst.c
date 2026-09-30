@@ -19,6 +19,7 @@
  */
 
 #include "_multivc.h"
+#include "assmisc.h"
 
 extern char  *MV_HarshClipTable;
 extern char  *MV_MixDestination;			// pointer to the next output sample
@@ -27,10 +28,6 @@ extern short *MV_LeftVolume;
 extern short *MV_RightVolume;
 extern int    MV_SampleSize;
 extern int    MV_RightChannelOffset;
-
-#ifdef __POWERPC__
-# define BIGENDIAN
-#endif
 
 /*
  JBF:
