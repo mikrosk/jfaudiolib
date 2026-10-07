@@ -342,7 +342,7 @@ void SDLDrv_PCM_Unlock(void)
 }
 
 
-#if (SDL_MAJOR_VERSION == 1)
+#if (SDL_MAJOR_VERSION == 1) && !defined(SDL_THREADS_DISABLED)
 static int cdWatchThread(void * v)
 {
     CDstatus status;
@@ -415,6 +415,9 @@ int SDLDrv_CD_Init(void)
         return SDLErr_Error;
     }
     
+    // SDL_CDOpen() does not read the TOC, SDL_CDStatus() does
+    SDL_CDStatus(CDRom);
+    
     ASS_Message("SDLDrv: num CD tracks: %d\n", CDRom->numtracks);
     for (i = 0; i < CDRom->numtracks; i++) {
         ASS_Message("SDLDrv: CD track %d - %s, %dsec\n",
@@ -465,6 +468,15 @@ int SDLDrv_CD_Play(int track, int loop)
     
     SDLDrv_CD_Stop();
     
+    // refresh the TOC, the disc may have been changed
+    if (!CD_INDRIVE(SDL_CDStatus(CDRom))) {
+        ErrorCode = SDLErr_CDCannotPlayTrack;
+        return SDLErr_Error;
+    }
+    
+    // track numbers are 1-based, SDL track indices are 0-based
+    track--;
+    
     if (SDL_CDPlayTracks(CDRom, track, 0, 1, 0) < 0) {
         ErrorCode = SDLErr_CDCannotPlayTrack;
         return SDLErr_Error;
@@ -473,6 +485,8 @@ int SDLDrv_CD_Play(int track, int loop)
     CDLoop = loop;
     CDTrack = track;
     
+    // without threads SDLDrv_CD_IsPlaying() restarts a looped track
+#ifndef SDL_THREADS_DISABLED
     if (loop) {
         CDWatchKillSem = SDL_CreateSemaphore(0);
         if (!CDWatchKillSem) {
@@ -490,6 +504,7 @@ int SDLDrv_CD_Play(int track, int loop)
             return SDLErr_Warning;  // play, but we won't be looping
         }
     }
+#endif
     
     return SDLErr_Ok;
 #else
@@ -516,6 +531,7 @@ void SDLDrv_CD_Stop(void)
     }
     CDWatchKillSem = 0;
     CDWatchThread = 0;
+    CDLoop = 0;
             
     SDL_CDStop(CDRom);
 #endif
@@ -541,10 +557,24 @@ void SDLDrv_CD_Pause(int pauseon)
 int SDLDrv_CD_IsPlaying(void)
 {
 #if (SDL_MAJOR_VERSION == 1)
+    CDstatus status;
+    
     if (!CDRom) {
         return 0;
     }
-    return SDL_CDStatus(CDRom) == CD_PLAYING;
+    
+    status = SDL_CDStatus(CDRom);
+    
+#ifdef SDL_THREADS_DISABLED
+    // no watch thread, so restart a looped track when polled
+    if (CDLoop && status == CD_STOPPED) {
+        if (SDL_CDPlayTracks(CDRom, CDTrack, 0, 1, 0) == 0) {
+            return 1;
+        }
+    }
+#endif
+    
+    return status == CD_PLAYING;
 #else
     return 0;
 #endif
